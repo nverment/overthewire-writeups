@@ -120,4 +120,75 @@ The password for the next level is stored in the file data.txt, where all lowerc
 
 when i was a weird little child, i was very interesting in codes. i think i just didn't want anyone to know what i was writing. cesar cipher was one of the first ones i 'discovered' myself, only to later find that it had already been invented some thousands of years ago. alas, seeing the string inside data.txt rang a bell.
 
-looking at the string `7x16WNeHIi5YkIhWsfFIqoognUTyj9Q4`, even knowing that it is rotated by 13 positions, i just copied it and pasted it in my beloved site dcode (https://www.dcode.fr/caesar-cipher). the site bruteforces by default, showing all possible rotations, which can and will be useful in the future (in krypton especially). in this case, we can just copy the value next to +13 or set the shift number to 13 manually.
+the only thing i did is copied the string `Gur cnffjbeq vf 7k16JArUVv5LxVuJfsSVdbbtaHGlw9D4` and pasted it in dcode (https://www.dcode.fr/caesar-cipher). the site bruteforces by default, showing all possible rotations, which can and will be useful in the future (in krypton especially). in this case, we can just copy the value next to +13 or set the shift number to 13 manually.
+
+### level 12 -> level 13
+level 12 was probably the most tedious out of all for me at least. overthewire tells us that there is a data.txt file that has been compressed multiple time. my first thought was to learn what a hexdump is.
+
+Hexdump is a utility that displays the contents of binary files in hexadecimal, decimal, octal, or ASCII. It’s a utility for inspection and can be used for data recovery, reverse engineering, and programming.
+(https://opensource.com/article/19/8/dig-binary-files-hexdump)
+
+following the challenge's hints, it would be a good idea to copy the file into a location where we can mess with it, given that we don't have permission to do that in the home directory. so, we will first run `cp data.txt /tmp/tempeh/' (or whatever your directory is called. i am personally running out of 'temp' jokes to make). now we have a copy of data.txt that we can experiment on.
+
+let's see the theory we looked up in practice. we can see that the xxd command makes a hexdump or does the reverse by looking at its man page. running the command on the data.txt file outputs the following.
+
+```shell
+bandit12@bandit:~$ xxd data.txt 
+00000000: 3030 3030 3030 3030 3a20 3166 3862 2030  00000000: 1f8b 0
+00000010: 3830 3820 3833 6339 2038 3736 3820 3032  808 83c9 8768 02
+00000020: 3033 2036 3436 3120 3734 3631 2033 3232  03 6461 7461 322
+00000030: 6520 202e 2e2e 2e2e 2e2e 682e 2e64 6174  e  .......h..dat
+00000040: 6132 2e0a 3030 3030 3030 3130 3a20 3632  a2..00000010: 62
+00000050: 3639 2036 6530 3020 3031 3365 2030 3263  69 6e00 013e 02c
+00000060: 3120 6664 3432 2035 6136 3820 3339 3331  1 fd42 5a68 3931
+```
+
+alright, looks like there is no readable text there. first, we can follow the hint and revert the hexdump of the file using `xxd -r data.txt newdata` - we save the output as newdata and take a look at it:
+
+```shell
+bandit12@bandit:/tmp/tempeh$ cat newdata 
+�ɇhdata2.bin>��BZh91AY&SY�=�����������������������?���w��߿߰1h @�A���@� ��CMhѠhA��:z�0�"�`��E�@Kk��O~�y�lTe���Y��$i�D��!��C���	j���H5��H��!��%N�o�D:T��rJA�z´`
+X�=�� �~�8�3T�N�Y�t]qKdh��.�+'�ih*���֛�T.���W�'G>\��l�d��!����
+                                                             �wJ""9�
+��%����8-��0L��r�I�jCxB^Ӻ�p��
+```
+looks promising. let's look at what kind of file it is with `file newdata`:
+```shell
+bandit12@bandit:/tmp/tempeh$ file newdata 
+newdata: gzip compressed data, was "data2.bin", last modified: Mon Jul 28 19:03:31 2025, max compression, from Unix, original size modulo 2^32 574
+```
+
+interesting - we are getting somewhere. since the file is compressed with gzip, we can also use the same command to reverse the compression. **however**, gzip only works on files with the appropriate suffix - so we first need to rename the file to `newdata.gz`. after running `gzip -d` on the file, we get the file `newdata`. `file` reveals to us that this has been compressed with bzip2, having block size = 900k. 
+
+`bzip2 -d -9 newdata` will do the trick - we use the decompress flag and set the block size to 900k (help page says `-1 .. -9 set block size to 100k .. 900k`) and get the file `newdata.out`.
+
+safe to say the new file is still not readable. yet another gzip compressed file, and by following the same method as above, we get the file newdata which is **also** compressed, this time using tar. `tar -xf newdata` decompresses the file into `data5.bin`. from then on i will provide a code snipped with the steps i followed because honestly it is repetitive and tiring.
+
+```shell
+bandit12@bandit:/tmp/tempeh$ file data5.bin 
+data5.bin: POSIX tar archive (GNU)
+bandit12@bandit:/tmp/tempeh$ tar -xf data5.bin
+bandit12@bandit:/tmp/tempeh$ ls
+data5.bin  data6.bin  data.txt  newdata
+bandit12@bandit:/tmp/tempeh$ file data6.bin 
+data6.bin: bzip2 compressed data, block size = 900k
+bandit12@bandit:/tmp/tempeh$ bzip2 -d -9 data6.bin 
+bzip2: Can't guess original name for data6.bin -- using data6.bin.out
+bandit12@bandit:/tmp/tempeh$ ls
+data5.bin  data6.bin.out  data.txt  newdata
+bandit12@bandit:/tmp/tempeh$ file data6.bin.out 
+data6.bin.out: POSIX tar archive (GNU)
+bandit12@bandit:/tmp/tempeh$ tar -xf data6.bin.out
+bandit12@bandit:/tmp/tempeh$ ls
+data5.bin  data6.bin.out  data8.bin  data.txt  newdata
+bandit12@bandit:/tmp/tempeh$ file data8.bin 
+data8.bin: gzip compressed data, was "data9.bin", last modified: Mon Jul 28 19:03:31 2025, max compression, from Unix, original size modulo 2^32 49
+bandit12@bandit:/tmp/tempeh$ mv data8.bin data8.gz
+bandit12@bandit:/tmp/tempeh$ gzip -d data8.gz 
+bandit12@bandit:/tmp/tempeh$ ls
+data5.bin  data6.bin.out  data8  data.txt  newdata
+bandit12@bandit:/tmp/tempeh$ cat data8
+The password is ...
+```
+
+oof. there we have it. when i say this genuinely stressed me out because i thought each decompress or unzip would be the last one. thankfully, we got the password and we are ready to move onto the next one.
