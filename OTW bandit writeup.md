@@ -1,8 +1,7 @@
 ### level 0 -> level 1
 bandit0 doesn't have that much to it. being the introductory level, the only thing needed is to ssh in and use the `cat` command to read the contents of the `readme` file, situated in the home directory.
 
-!(images/image-1.png)
-
+!(https://github.com/nverment/overthewire-writeups/tree/main/images/image-1.png)
 for the record, and for future levels, i prefer to run these commands upon logging in:
 
 ```shell
