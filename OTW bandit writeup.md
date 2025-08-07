@@ -3,8 +3,6 @@ bandit0 doesn't have that much to it. being the introductory level, the only thi
 
 ![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-1.png)
 
-![alt text](https://github.com/nverment/overthewire-writeups/tree/main/images/image-1.png)
-
 for the record, and for future levels, i prefer to run these commands upon logging in:
 
 ```shell
@@ -32,15 +30,18 @@ so, my mind went to commands like `echo 'string' > file`. the `>` operator redir
 `cat < -` does, indeed, work, and returns us the password to the next level.
 ### level 2 -> level 3
 level 2 is very similar to level 1, since we can immediately see a file called '--spaces in this filename--' under the home directory.
-!(images/image-7.png)
+
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-7.png)
 
 naturally, i thought i'd reuse the previous solution and i was successful - being presented with the password for the next level.
-!(image-8.png)
+
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-8.png)
 
 i should also mention that there is another solution that i know of - probably more that i don't. using `cat -- <filename>` instructs cat to ignore whatever comes after `--` as a flag, instead taking it as the filename. running that command returns the same result as the above solution.
 ### level 3 -> level 4 
 bandit 3's home directory contains a directory called `inhere`. following its suggestion, we go 'in here' only to find it seemingly empty. or at least until we use the `ls -la` command. we can, then, see a file that claims to be hiding from us.
-!(images/image-9.png)
+
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-9.png)
 
 the `.` prefix, for those who don't know, is used in hidden files in linux systems. there are ways to view them from terminal (like the command i just used) or by enabling some 'view hidden files' setting in your preferred file manager. but no one hides from me. so, using `cat ...Hiding-From-You` we can successfully view the contents of the file and move onto the next level.
 ### level 4 -> level 5
@@ -49,14 +50,16 @@ in level 4, we can observe a directory of the same name as before, 'inhere'. we 
 The password for the next level is stored in the only human-readable file in the **inhere** directory. Tip: if your terminal is messed up, try the “reset” command.
 
 i tend to be an 'easy solution is best' kinda person. so i just ran `cat -- \-file*`, which would display the contents of all the files in the directory. in the output, between the weird characters, there is a familiar-looking string. 
-!(images/image-10.png)
+
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-10.png)
 
 since there is a letter - character in the non-human readable files, and there is no delimiter in between each file's contents, we have no way of knowing exactly where the password begins or ends. in my case, i confirmed using `cat` on -file07 (a guess that proved to be correct). 
 
 **note** i am sure the right way to do this is to use some form of the `file -readable` command. i didn't bother to do that though, so check yourself :)
 ### level 6 -> level 7 
 ssh'ing into level 6, we see the same 'inhere' directory, this time with multiple 'maybehere' numbered directories inside it.
-!(images/image-11.png)
+
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-11.png)
 
 being told that we need a file that is readable, non exacutable and has a size of 1033 bytes, my first tought was to run `ls -la maybehere* | grep 1033`. although this did return a file, we can't see the directory it's in, and manually looking into each file with that name is not too time efficient.
 
@@ -70,7 +73,8 @@ a bit of a change of pace in level 6, as bandit tells us the file is stored "som
 we can run `ls -la /` to view all the directories, but still seemingly no files. we have no other option but to use `find` again - this time we are looking for a file 33 bytes in size, owned by user bandit7 and group bandit6. we can put this together: 
 `bandit6@bandit:~$ find / -user bandit7 -size 33c -group bandit6 
 but the result looks something like this:
-!(images/image-12.png)
+
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-12.png)
 
 so, after scrolling to see if i can find the one file we were able to read (to no avail), i found out there is a way to redirect errors and warnings so that they don't show up on the screen. 
 `bandit6@bandit:~$ find / -user bandit7 -size 33c -group bandit6 2>/dev/null`
@@ -86,7 +90,8 @@ for level 8, the goal is described as follows:
 The password for the next level is stored in the file **data.txt** and is the only line of text that occurs only once.
 
 so, using my analytical skills, i thought i'd get out easy again and ran `sort data.txt` which would return the file, but sorted, hoping it would be easy to spot the one line that occurs only once.
-!(images/image-14.png)
+
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-14.png)
 
 yeah.. the output is 1001 lines. i am **not** reading all that. after some more consideration, i looked at what the `uniq` command does. turns out, running it with a `-u` flag, it returns the unique (surprise) lines in a file. the end result looks like this:
 `bandit8@bandit:~$ sort data.txt | uniq -u`
