@@ -173,7 +173,7 @@ data5.bin  data6.bin  data.txt  newdata
 bandit12@bandit:/tmp/tempeh$ file data6.bin 
 data6.bin: bzip2 compressed data, block size = 900k
 bandit12@bandit:/tmp/tempeh$ bzip2 -d -9 data6.bin 
-bzip2: Can't guess original name for data6.bin -- using data6.bin.out
+bzip2: Can\'t guess original name for data6.bin -- using data6.bin.out
 bandit12@bandit:/tmp/tempeh$ ls
 data5.bin  data6.bin.out  data.txt  newdata
 bandit12@bandit:/tmp/tempeh$ file data6.bin.out 
