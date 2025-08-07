@@ -83,7 +83,8 @@ so, after scrolling to see if i can find the one file we were able to read (to n
 ### level 7 -> level 8 
 there is honestly not a lot i can say about this level - we are told there is a password in the (very lengthy) data.txt file, next to the word 'millionth'. a simple `grep` will do the trick.
 
-!(images/image-13.png)
+![alt text](https://raw.githubusercontent.com/nverment/overthewire-writeups/main/images/image-13.png)
+
 ### level 8 -> level 9
 for level 8, the goal is described as follows:
 
