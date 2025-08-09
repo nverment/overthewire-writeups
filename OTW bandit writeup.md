@@ -192,3 +192,48 @@ The password is ...
 ```
 
 oof. there we have it. when i say this genuinely stressed me out because i thought each decompress or unzip would be the last one. thankfully, we got the password and we are ready to move onto the next one.
+
+### level 13 -> level 14
+
+The password for the next level is stored in /etc/bandit_pass/bandit14 and can only be read by user bandit14. For this level, you don’t get the next password, but you get a private SSH key that can be used to log into the next level. Note: localhost is a hostname that refers to the machine you are working on
+
+there is honestly not much in level 13, a much needed break after the exhausting level 13. logging in, we see a file named sshkey.private - looks like an the authentication file for ssh connection. i instantly think to check `ssh --help` - it returns this:
+
+```bash
+usage: ssh [-46AaCfGgKkMNnqsTtVvXxYy] [-B bind_interface] [-b bind_address]
+           [-c cipher_spec] [-D [bind_address:]port] [-E log_file]
+           [-e escape_char] [-F configfile] [-I pkcs11] [-i identity_file]
+           [-J destination] [-L address] [-l login_name] [-m mac_spec]
+           [-O ctl_cmd] [-o option] [-P tag] [-p port] [-R address]
+           [-S ctl_path] [-W host:port] [-w local_tun[:remote_tun]]
+           destination [command [argument ...]]
+```
+the `-i` flag says 'identity file'. i can safely assume that sshkey file could very easily be that identity file we are talking about. so, i will run the usual command, but this time instead of inputting a password, i will instead specify the key file.
+
+```bash
+bandit13@bandit:~$ ssh -i sshkey.private bandit14@bandit.labs.overthewire.org -p 2220The authenticity of host '[bandit.labs.overthewire.org]:2220 ([127.0.0.1]:2220)' can't be established.
+ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Could not create directory '/home/bandit13/.ssh' (Permission denied).
+Failed to add the host to the list of known hosts (/home/bandit13/.ssh/known_hosts).
+                         _                     _ _ _   
+                        | |__   __ _ _ __   __| (_) |_ 
+                        | '_ \ / _` | '_ \ / _` | | __|
+                        | |_) | (_| | | | | (_| | | |_ 
+                        |_.__/ \__,_|_| |_|\__,_|_|\__|
+                                                       
+
+                      This is an OverTheWire game server. 
+            More information on http://www.overthewire.org/wargames
+```
+that was easy. but let's not forget to check the password nonetheless in case i have to restart for some reason.
+```bash
+bandit14@bandit:~$ cat /etc/bandit_pass/bandit14
+```
+
+### level 14 -> level 15
+
+The password for the next level can be retrieved by submitting the password of the current level to port 30000 on localhost.
+
+in level 14, it looks like we have some new concepts, as well as some new recommended commands. the word 'submitting' leads me to believe that maybe i
